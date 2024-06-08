@@ -1,6 +1,6 @@
 import fs from 'fs';
 
-export function loadDictionaryFromFile(filename) {
+export function loadDictionaryFromFile(filename, hasFrequency) {
     try {
         // Read the file synchronously
         const data = fs.readFileSync(filename, 'utf8');
@@ -11,14 +11,16 @@ export function loadDictionaryFromFile(filename) {
         
         // Iterate through each line
         lines.forEach(line => {
-            // Split the line into word and frequency
-            const [word, frequency] = line.trim().split(' ');
-            // Add the word and frequency to the dictionary
-            if (word && frequency) {
-                dictionary.push([word, frequency]);
-            }
+            if (hasFrequency) {
+                // Split the line into word and frequency
+                const [word, frequency] = line.trim().split(' ');
+                // Add the word and frequency to the dictionary
+                if (word && frequency) {
+                    dictionary.push([word, frequency]);
+                }
+            } else dictionary.push([line.trim().replace(/\s+/g, ''), 0]);
         });
-        console.log(dictionary);
+        console.log("Loaded " + dictionary.length + " entries from " + filename);
         return dictionary;
     } catch (err) {
         console.error('Error reading file:', err);
@@ -26,26 +28,12 @@ export function loadDictionaryFromFile(filename) {
     }
 }
 
-// // Example usage:
-// const filename = 'dictionary.txt';
-// const dictionary = loadDictionaryFromFile(filename);
-// console.log(dictionary);
-
-
-// export async function loadDictionary(file) {
-//     const response = await fetch(file);
-//     const text = await response.text();
-    
-//     const dictionary = {};
-//     const lines = text.split('\n');
-    
-//     lines.forEach(line => {
-//       const [word, frequency] = line.trim().split(' ');
-//       if (word && frequency) {
-//         dictionary[word] = parseInt(frequency);
-//       }
-//     });
-  
-//     return dictionary;
-//   }
-  
+export function loadCorpus(dataFolder, corpusName) {
+    try {
+        corpusName = corpusName.toLowerCase();
+        return fs.readFileSync(dataFolder + "/corpus-" + corpusName + ".txt", 'utf8');
+    } catch (err) {
+        console.error('Error reading file:', err);
+        return null;
+    }
+}
